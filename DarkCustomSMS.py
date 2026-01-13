@@ -1,14 +1,9 @@
 import logging
 import requests
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# --- কনফিগারেশন ---
+# আপনার বোট টোকেন
 API_TOKEN = '8272232302:AAFQsczsDl0cLTztQQtortFmPR-T7Q5dlyY'
-ADMIN_ID = 6973940391
-CHANNEL_ID = "@tech_master_a2z"
-SMS_API_URL = "https://bulksms.rgb-boys.my.id/api.php"
-SMS_API_KEY = "RGB-mhhacker"
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
@@ -16,34 +11,25 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
-    welcome_text = (
-        "👋 Welcome to Pro Custom SMS Bot!\n\n"
-        "📩 This bot provides Professional SMS services\n"
-        "━━━━━━━━━━━━━━\n"
-        "👨‍💻 Developer: Tech Master\n"
-        "📢 Channel: https://t.me/tech_master_a2z\n"
-        "━━━━━━━━━━━━━━\n"
-        "➡️ Type /sms <number> <message> to send SMS."
-    )
-    await message.answer(welcome_text)
+    await message.reply("✅ বোটটি অনলাইনে আছে!\nএসএমএস পাঠাতে লিখুন: /sms নম্বর টেক্সট")
 
 @dp.message_handler(commands=['sms'])
-async def send_sms_handler(message: types.Message):
+async def send_sms(message: types.Message):
     args = message.get_args().split(' ', 1)
     if len(args) < 2:
-        return await message.reply("❌ Format: /sms 017xxxxxxxx Hello")
+        return await message.reply("❌ ফরম্যাট: /sms 017xxxxxxxx হাই")
     
-    number, msg_text = args[0], args[1]
-    params = {'key': SMS_API_KEY, 'number': number, 'msg': msg_text}
+    number, msg = args[0], args[1]
+    url = f"https://bulksms.rgb-boys.my.id/api.php?key=RGB-mhhacker&number={number}&msg={msg}"
     
     try:
-        response = requests.get(SMS_API_URL, params=params)
-        if response.status_code == 200:
-            await message.reply(f"✅ SMS Sent to {number}!")
+        r = requests.get(url)
+        if r.status_code == 200:
+            await message.reply(f"🚀 {number} নম্বরে এসএমএস পাঠানো হয়েছে!")
         else:
-            await message.reply("❌ API Error!")
-    except Exception as e:
-        await message.reply(f"❌ Error: {str(e)}")
+            await message.reply("⚠️ এপিআই সার্ভারে সমস্যা।")
+    except:
+        await message.reply("❌ কোনো একটি ভুল হয়েছে।")
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
